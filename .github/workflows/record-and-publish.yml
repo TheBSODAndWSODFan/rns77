@@ -1,0 +1,27 @@
+name: Record and Publish Stream
+
+on:
+  workflow_dispatch:  # Manually trigger this workflow from GitHub UI
+
+jobs:
+  record-stream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install mpv
+        run: sudo apt-get update && sudo apt-get install -y mpv --install-recommends
+
+      - name: Record stream using mpv (stop manually)
+        run: |
+          mkdir -p output
+          mpv --vo=null --ao=null "https://live.eu-north-1a.cf.dmcdn.net/sec2(XHn56GGqejqYkxe0MSU1BEtZcAM7eVkdzCHukSq4x6fow7GYlx09T7Bz_SFb1KQbwWwWg7VoAyNOkG8M3yqEwGwGPTF0gbjdFhUlF4MMRdh6GiYOaUGnGkt-tmH3S7SW)/dm/3/x8qckyq/s/live-480.m3u8" --stream-record=output/recorded.mp4
+
+      - name: Upload to GitHub Releases
+        if: always()  # Always run even if previous step is stopped
+        uses: softprops/action-gh-release@v2
+        with:
+          files: output/recorded.mp4
+          tag_name: stream-recording-$(date +%Y%m%d-%H%M%S)
+          name: Stream Recording - $(date +%Y-%m-%d %H:%M:%S)
+          draft: true  # Make it a draft release for review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
