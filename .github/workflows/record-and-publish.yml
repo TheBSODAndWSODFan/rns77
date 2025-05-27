@@ -2,10 +2,6 @@ name: Record and Publish Stream
 
 on:
   workflow_dispatch:  # Manually trigger this workflow from GitHub UI
-  workflow_run:
-    workflows: [Record and Publish Stream]
-    types:
-      - cancelled
 
 jobs:
   record-stream:
@@ -56,3 +52,7 @@ jobs:
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup (optional)
+        if: always()
+        run: rm -rf artifacts
