@@ -2,6 +2,10 @@ name: Record and Publish Stream
 
 on:
   workflow_dispatch:  # Manually trigger this workflow from GitHub UI
+  workflow_run:
+    workflows: [Record and Publish Stream]
+    types:
+      - cancelled
 
 jobs:
   record-stream:
@@ -15,14 +19,23 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y mpv ffmpeg gh
 
       - name: Record stream using mpv (stop manually)
+        id: record
+        continue-on-error: true
         run: |
           mkdir -p artifacts/output
           mpv --vo=null --ao=null "https://live.eu-north-1a.cf.dmcdn.net/sec2(XHn56GGqejqYkxe0MSU1BEtZcAM7eVkdzCHukSq4x6fow7GYlx09T7Bz_SFb1KQbwWwWg7VoAyNOkG8M3yqEwGwGPTF0gbjdFhUlF4MMRdh6GiYOaUGnGkt-tmH3S7SW)/dm/3/x8qckyq/s/live-480.m3u8" --stream-record=artifacts/output/recorded.ts
 
-      - name: Convert TS to MP4 using ffmpeg
-        run: ffmpeg -i artifacts/output/recorded.ts -vcodec copy -acodec copy artifacts/output/recorded.mp4
+      - name: Convert TS to MP4 using ffmpeg (if exists)
+        if: always()
+        run: |
+          if [ -f artifacts/output/recorded.ts ]; then
+            ffmpeg -i artifacts/output/recorded.ts -vcodec copy -acodec copy artifacts/output/recorded.mp4
+          else
+            echo "recorded.ts not found, skipping ffmpeg"
+          fi
 
       - name: Create GitHub Release
+        if: always()
         run: |
           gh release create "$tag_name" --repo "${{ github.repository }}" \
             --title "Stream Recording - $tag_name" \
@@ -32,6 +45,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload all artifacts to the release
+        if: always()
         run: |
           repo=${{ github.repository }}
           tag_name=${{ env.tag_name }}
