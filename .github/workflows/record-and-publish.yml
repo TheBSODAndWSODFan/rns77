@@ -6,22 +6,39 @@ on:
 jobs:
   record-stream:
     runs-on: ubuntu-latest
+
+    env:
+      tag_name: stream-recording-${{ github.run_id }}
+
     steps:
-      - name: Install mpv
-        run: sudo apt-get update && sudo apt-get install -y mpv --install-recommends
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y mpv ffmpeg gh
 
       - name: Record stream using mpv (stop manually)
         run: |
-          mkdir -p output
-          mpv --vo=null --ao=null "https://live.eu-north-1a.cf.dmcdn.net/sec2(XHn56GGqejqYkxe0MSU1BEtZcAM7eVkdzCHukSq4x6fow7GYlx09T7Bz_SFb1KQbwWwWg7VoAyNOkG8M3yqEwGwGPTF0gbjdFhUlF4MMRdh6GiYOaUGnGkt-tmH3S7SW)/dm/3/x8qckyq/s/live-480.m3u8" --stream-record=output/recorded.mp4
+          mkdir -p artifacts/output
+          mpv --vo=null --ao=null "https://live.eu-north-1a.cf.dmcdn.net/sec2(XHn56GGqejqYkxe0MSU1BEtZcAM7eVkdzCHukSq4x6fow7GYlx09T7Bz_SFb1KQbwWwWg7VoAyNOkG8M3yqEwGwGPTF0gbjdFhUlF4MMRdh6GiYOaUGnGkt-tmH3S7SW)/dm/3/x8qckyq/s/live-480.m3u8" --stream-record=artifacts/output/recorded.ts
 
-      - name: Upload to GitHub Releases
-        if: always()  # Always run even if previous step is stopped
-        uses: softprops/action-gh-release@v2
-        with:
-          files: output/recorded.mp4
-          tag_name: stream-recording-$(date +%Y%m%d-%H%M%S)
-          name: Stream Recording - $(date +%Y-%m-%d %H:%M:%S)
-          draft: true  # Make it a draft release for review
+      - name: Convert TS to MP4 using ffmpeg
+        run: ffmpeg -i artifacts/output/recorded.ts -vcodec copy -acodec copy artifacts/output/recorded.mp4
+
+      - name: Create GitHub Release
+        run: |
+          gh release create "$tag_name" --repo "${{ github.repository }}" \
+            --title "Stream Recording - $tag_name" \
+            --notes "Automated stream recording." \
+            --draft
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload all artifacts to the release
+        run: |
+          repo=${{ github.repository }}
+          tag_name=${{ env.tag_name }}
+          for artifact_dir in ./artifacts/*; do
+            for artifact in "$artifact_dir"/*; do
+              gh release upload "$tag_name" "$artifact" --repo "$repo" --clobber
+            done
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
