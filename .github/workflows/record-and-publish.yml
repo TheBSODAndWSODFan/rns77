@@ -19,13 +19,14 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p artifacts/output
-          mpv --vo=null --ao=null "https://live.eu-north-1a.cf.dmcdn.net/sec2(yx1Ds53Tkp6FbrfEciFrIBFYcPi-rgx4e1cL2QAofRmC0ry_E0Ptg-IRoCbVdPgwVwcqMEPZ-V3BZzjKfcuUIflRfyPeLJ7ERJCsEH8HlL3SNIWQeYGPUuRCXjCzg0EP)/dm/3/x8qckyq/s/live-480.m3u8" --stream-record=artifacts/output/recorded.ts
+          mpv --vo=null --ao=null "https://live.eu-north-1a.cf.dmcdn.net/sec2(vnTfOfB6NjJHLXn1o2hOZ6OxrB0iNj1XqbSEuPLX-WanEhvv5uwDRYb9yXtGl9gbHQN2iZTWUoQEjdCH0cbkmPbmzlUThQJFlYBLiR93kWIBPOgZDdbT2kKrxo828OO2)/dm/3/x8qckyq/s/live-480.m3u8" --stream-record=artifacts/output/recorded.ts
 
       - name: Convert TS to MP4 using ffmpeg (if exists)
         if: always()
         run: |
           if [ -f artifacts/output/recorded.ts ]; then
             ffmpeg -i artifacts/output/recorded.ts -vcodec copy -acodec copy artifacts/output/recorded.mp4
+            rm -rf artifacts/output/recorded.ts 
           else
             echo "recorded.ts not found, skipping ffmpeg"
           fi
