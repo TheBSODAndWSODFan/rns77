@@ -19,7 +19,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p artifacts/output
-          mpv --vo=null --ao=null "https://live.eu-north-1b.cf.dmcdn.net/sec2(ypvarUVKDcbnqknn7OlnEKFi08KiuSpGbBEggMcXsfb78zDy7Er-cWN29lRWvRDJtl_ky6PxKHgCfAFoZiU3aF3qZyypPj3aa0PNF4VgCleU1EwofX0VjYn0B-1oR2Le)/dm/3/x8qckyq/s/live-480.m3u8" --stream-record=artifacts/output/recorded.ts
+          mpv --vo=null --ao=null "https://live.eu-north-1b.cf.dmcdn.net/sec2(EjH-PDTcdt-KxQgfAS9r1bczbGlDqMdiv19h_Zm84-cxRNaxssV6IdjtWCYdCi9YBeqQeU9LBoXX6-K3mNk5w61tB1h02aXXZNAB6T1NoP1bcteptXhJpG6mbu_WejLx)/dm/3/x8qckyq/s/live-480.m3u8" --stream-record=artifacts/output/recorded.ts
 
       - name: Convert TS to MP4 using ffmpeg (if exists)
         if: always()
@@ -36,7 +36,7 @@ jobs:
         run: |
           gh release create "$tag_name" --repo "${{ github.repository }}" \
             --title "Stream Recording - $tag_name" \
-            --notes "Automated stream recording." \
+            --notes "Automation of stream recording." \
             --draft
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
