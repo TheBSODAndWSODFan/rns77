@@ -1,4 +1,4 @@
-name: Record and Publish Stream
+name: Download and Publish Stream
 
 on:
   workflow_dispatch:  # Manually trigger this workflow from GitHub UI
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      tag_name: stream-recording-${{ github.run_id }}
+      tag_name: download-recording-${{ github.run_id }}
 
     steps:
       - name: Install dependencies
