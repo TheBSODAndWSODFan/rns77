@@ -1,0 +1,59 @@
+name: Record and Publish Stream
+
+on:
+  workflow_dispatch:  # Manually trigger this workflow from GitHub UI
+
+jobs:
+  record-stream:
+    runs-on: ubuntu-latest
+
+    env:
+      tag_name: stream-recording-${{ github.run_id }}
+
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y wget aria2 curl gh
+
+      - name: Record stream using mpv (stop manually)
+        id: record
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts/output
+          wget "https://ztp1.androidcombo.com/xapk/com.overdogs.heroes/3e1184fe89534e13b80c3e4ae622e05d/download?__cache=true&name=%25ED%259E%2588%25EC%2596%25B4%25EB%25A1%259C%25EC%25A6%2588%2B%25ED%2581%25AC%25EB%25A3%25A8%2B%253A%2B%25EC%25A0%2584%25EB%259E%25B5%2B%25EB%2594%2594%25ED%258E%259C%25EC%258A%25A4_0.9.16_apkcombo.com.xapk&utm_source=apkcombo.com&lang=en" -O "artifacts/output/히어로즈+크루+_+전략+디펜스_0.9.16_apkcombo.com.xapk"
+
+      - name: Convert TS to MP4 using ffmpeg (if exists)
+        if: always()
+        run: |
+          if [ -f artifacts/output/recorded.ts ]; then
+            ffmpeg -i artifacts/output/recorded.ts -vcodec copy -acodec copy artifacts/output/recorded.mp4
+            rm -rf artifacts/output/recorded.ts 
+          else
+            echo "recorded.ts not found, skipping ffmpeg"
+          fi
+
+      - name: Create GitHub Release
+        if: always()
+        run: |
+          gh release create "$tag_name" --repo "${{ github.repository }}" \
+            --title "Stream Recording - $tag_name" \
+            --notes "Automation of stream recording." \
+            --draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload all artifacts to the release
+        if: always()
+        run: |
+          repo=${{ github.repository }}
+          tag_name=${{ env.tag_name }}
+          for artifact_dir in ./artifacts/*; do
+            for artifact in "$artifact_dir"/*; do
+              gh release upload "$tag_name" "$artifact" --repo "$repo" --clobber
+            done
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup (optional)
+        if: always()
+        run: rm -rf artifacts
