@@ -19,7 +19,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p artifacts/output
-          wget "https://ztp1.androidcombo.com/xapk/com.overdogs.heroes/3e1184fe89534e13b80c3e4ae622e05d/download?__cache=true&name=%25ED%259E%2588%25EC%2596%25B4%25EB%25A1%259C%25EC%25A6%2588%2B%25ED%2581%25AC%25EB%25A3%25A8%2B%253A%2B%25EC%25A0%2584%25EB%259E%25B5%2B%25EB%2594%2594%25ED%258E%259C%25EC%258A%25A4_0.9.16_apkcombo.com.xapk&utm_source=apkcombo.com&lang=en" -O "artifacts/output/히어로즈+크루+_+전략+디펜스_0.9.16_apkcombo.com.xapk"
+          wget "https://ztp1.androidcombo.com/xapk/com.neptune.game.nekotilematch/40c1a23bd574466baf9a1680281e1428/download?name=%25EB%2584%25A4%25EC%25BD%2594%2B%25EC%2582%25AC%25EC%25B2%259C%25EC%2584%25B1_1.0.1_apkcombo.com.xapk&utm_source=apkcombo.com&lang=en" -O "artifacts/output/NekoTileMatch_v1.0.1_9.xapk"
 
       - name: Convert TS to MP4 using ffmpeg (if exists)
         if: always()
