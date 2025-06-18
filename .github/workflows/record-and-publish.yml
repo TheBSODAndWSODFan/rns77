@@ -23,7 +23,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p artifacts/output
-          mpv --vo=null --ao=null "https://live.eu-north-1a.cf.dmcdn.net/sec2(hQMs7w5VEOMRE2DD-OpP9MbsX8u6KgiWd-a8pR3jM-_ApP314WPQ-wwEFJk1IjgQcu256Aexj7mbAcV9f1ZKtQR51hvhrGiMTgXSf6jQURgU-glTj_8gs2nsod-u5tGi)/dm/3/x8qckyq/s/live-720.m3u8" --stream-record=artifacts/output/recorded.ts
+          mpv --vo=null --ao=null "https://video.detik.com/trans7/smil:trans7.smil/chunklist_w577694934_b744100_sleng.m3u8" --stream-record=artifacts/output/recorded.ts
 
       - name: Convert TS to MP4 using ffmpeg (if exists)
         if: always()
