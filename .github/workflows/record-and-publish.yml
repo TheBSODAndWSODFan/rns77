@@ -11,6 +11,10 @@ jobs:
       tag_name: stream-recording-${{ github.run_id }}
 
     steps:
+       - name: Disable initramfs update
+        run: sudo sed -i 's/yes/no/g' /etc/initramfs-tools/update-initramfs.conf
+      - name: Disable man-db update
+        run: sudo rm -f /var/lib/man-db/auto-update
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y mpv ffmpeg gh
 
