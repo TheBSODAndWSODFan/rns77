@@ -1,0 +1,59 @@
+name: Convert and Publish Stream
+
+on:
+  workflow_dispatch:  # Manually trigger this workflow from GitHub UI
+
+jobs:
+  record-stream:
+    runs-on: ubuntu-latest
+
+    env:
+      tag_name: convert-recording-${{ github.run_id }}
+
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y wget aria2 curl gh ffmpeg mpv
+
+      - name: Record stream using mpv (stop manually)
+        id: record
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts/output
+          wget "https://github.com/TheBSODAndWSODFan/rns77/releases/download/stream-recording-15813780299/recorded.mp4" -O "artifacts/output/recorded.mp4"
+
+      - name: Convert TS to MP4 using ffmpeg (if exists)
+        if: always()
+        run: |
+          if [ -f artifacts/output/recorded.mp4 ]; then
+            ffmpeg -i artifacts/output/recorded.mp4 -vf scale=640x360 -c:v libx264 -crf 23 -preset fast -c:a aac -b:a 128k artifacts/output/recorded-360.mp4
+            rm -rf artifacts/output/recorded.mp4 
+          else
+            echo "recorded.ts not found, skipping ffmpeg"
+          fi
+
+      - name: Create GitHub Release
+        if: always()
+        run: |
+          gh release create "$tag_name" --repo "${{ github.repository }}" \
+            --title "Stream Recording - $tag_name" \
+            --notes "Automation of stream recording." \
+            --draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload all artifacts to the release
+        if: always()
+        run: |
+          repo=${{ github.repository }}
+          tag_name=${{ env.tag_name }}
+          for artifact_dir in ./artifacts/*; do
+            for artifact in "$artifact_dir"/*; do
+              gh release upload "$tag_name" "$artifact" --repo "$repo" --clobber
+            done
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup (optional)
+        if: always()
+        run: rm -rf artifacts
