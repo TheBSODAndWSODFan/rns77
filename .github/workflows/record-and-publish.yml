@@ -23,7 +23,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p artifacts/output
-          mpv --vo=null --ao=null "https://live.eu-north-1a.cf.dmcdn.net/sec2(wTnc1XDN65hl7XqY-xFiq6hEjhnSh55EIIffcYDpFQ2kJk5ljzrWyCSW9Foq-EE5d_k6p0y67-ig3inzif6HIc2K8mSj7iW6h6ZmTlbffgzB-om-mphz4QQD3GBGwDUB)/dm/3/x8qckyq/s/live-720.m3u8" --stream-record=artifacts/output/recorded.ts
+          mpv --vo=null --ao=null "https://live.eu-north-1a.cf.dmcdn.net/sec2(vpiBY3Gq-FoA7A4ofCTRIPqKQ8qi27F_sisJXgYAqGgJfv44eVXlLu5FnFTU59r8q-FW4rhnZbJD0heV5R2QztWj_CgnQ7hi12UqbNuoNp1NNZCDzBjawaM0npXUHObx)/dm/3/x8qckyq/s/live-720.m3u8" --stream-record=artifacts/output/recorded.ts
 
       - name: Convert TS to MP4 using ffmpeg (if exists)
         if: always()
