@@ -19,13 +19,13 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p artifacts/output
-          wget "https://github.com/TheBSODAndWSODFan/rns77/releases/download/stream-recording-15813780299/recorded.mp4" -O "artifacts/output/recorded.mp4"
+          wget "https://github.com/TheBSODAndWSODFan/rns77/releases/download/stream-recording-15902528633/recorded.mp4" -O "artifacts/output/recorded.mp4"
 
       - name: Convert TS to MP4 using ffmpeg (if exists)
         if: always()
         run: |
           if [ -f artifacts/output/recorded.mp4 ]; then
-            ffmpeg -i artifacts/output/recorded.mp4 -vf scale=640x360 -c:v libx264 -crf 23 -preset fast -c:a aac -b:a 128k artifacts/output/recorded-360.mp4
+            ffmpeg -i artifacts/output/recorded.mp4 -vf scale=426x240 -c:v libx264 -crf 23 -preset fast -c:a aac -b:a 128k artifacts/output/recorded-360.mp4
             rm -rf artifacts/output/recorded.mp4 
           else
             echo "recorded.ts not found, skipping ffmpeg"
