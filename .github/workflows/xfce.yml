@@ -25,10 +25,13 @@ jobs:
           mkdir -p ~/.vnc
           echo "mypassword" | vncpasswd -f > ~/.vnc/passwd
           chmod 600 ~/.vnc/passwd
-          echo "#!/bin/sh" > ~/.vnc/xstartup
-          echo "unset SESSION_MANAGER" >> ~/.vnc/xstartup
-          echo "unset DBUS_SESSION_BUS_ADDRESS" >> ~/.vnc/xstartup
-          echo "startxfce4 &" >> ~/.vnc/xstartup
+          cat > ~/.vnc/xstartup <<'EOF'
+          #!/bin/sh
+          xrdb $HOME/.Xresources
+          unset SESSION_MANAGER
+          unset DBUS_SESSION_BUS_ADDRESS
+          startxfce4 &
+          EOF
           chmod +x ~/.vnc/xstartup
 
       - name: Start VNC server
