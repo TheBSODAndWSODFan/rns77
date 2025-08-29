@@ -27,12 +27,15 @@ jobs:
           chmod 600 ~/.vnc/passwd
           cat > ~/.vnc/xstartup <<'EOF'
           #!/bin/sh
-          xrdb $HOME/.Xresources
+          if [ -r $HOME/.Xresources ]; then
+            xrdb $HOME/.Xresources
+          fi
           unset SESSION_MANAGER
           unset DBUS_SESSION_BUS_ADDRESS
           startxfce4 &
           EOF
           chmod +x ~/.vnc/xstartup
+
 
       - name: Start VNC server
         run: |
