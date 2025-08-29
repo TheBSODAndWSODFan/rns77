@@ -1,0 +1,59 @@
+name: XFCE Desktop in Browser (NoVNC)
+
+on:
+  workflow_dispatch:   # manual start
+
+jobs:
+  desktop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update system and install XFCE + VNC
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            xfce4 xfce4-goodies tigervnc-standalone-server dbus-x11 \
+            wget novnc websockify x11-utils
+
+      - name: Install Firefox ESR (deb, not snap)
+        run: |
+          wget -O firefox.deb "https://ftp.mozilla.org/pub/firefox/releases/140.2.0esr/linux-x86_64/en-US/firefox-140.2.0esr.deb"
+          sudo apt-get install -y ./firefox.deb || true
+          sudo apt-get install -f -y   # fix any deps
+
+      - name: Setup VNC password
+        run: |
+          mkdir -p ~/.vnc
+          echo "mypassword" | vncpasswd -f > ~/.vnc/passwd
+          chmod 600 ~/.vnc/passwd
+          echo "#!/bin/sh" > ~/.vnc/xstartup
+          echo "unset SESSION_MANAGER" >> ~/.vnc/xstartup
+          echo "unset DBUS_SESSION_BUS_ADDRESS" >> ~/.vnc/xstartup
+          echo "startxfce4 &" >> ~/.vnc/xstartup
+          chmod +x ~/.vnc/xstartup
+
+      - name: Start VNC server
+        run: |
+          vncserver :1 -geometry 1280x800 -depth 24
+
+      - name: Start NoVNC (websockify)
+        run: |
+          websockify --web /usr/share/novnc/ 8080 localhost:5901 &
+          sleep 5
+
+      - name: Install Cloudflared
+        run: |
+          wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          sudo dpkg -i cloudflared-linux-amd64.deb
+
+      - name: Start tunnel to NoVNC
+        run: |
+          cloudflared tunnel --url http://localhost:8080 --no-autoupdate > tunnel.log 2>&1 &
+          sleep 15
+          echo "======== Access URL (NoVNC) ========"
+          grep -Eo "https://[0-9a-zA-Z\.-]+\.trycloudflare.com" tunnel.log || true
+          echo "===================================="
+
+      - name: Keep alive until manually stopped
+        run: |
+          echo "Desktop is running! Stop manually with 'Stop workflow'."
+          sleep infinity
