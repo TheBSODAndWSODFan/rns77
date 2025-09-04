@@ -7,18 +7,25 @@ jobs:
   desktop:
     runs-on: ubuntu-latest
     steps:
-      - name: Update system and install XFCE + VNC
-        run: |
-          sudo apt-get update
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-            xfce4 xfce4-goodies tigervnc-standalone-server dbus-x11 \
-            wget novnc websockify x11-utils
+- name: Install XFCE and tools
+  run: |
+    sudo apt-get update
+    sudo apt-get install -y --no-install-recommends \
+      xfce4 xfce4-terminal \
+      thunar file-roller thunar-archive-plugin \
+      mousepad \
+      xfce4-taskmanager xfce4-screenshooter galculator \
+      ristretto \
+      tigervnc-standalone-server novnc websockify \
+      dbus-x11 x11-utils x11-xserver-utils \
+      curl wget unzip
 
-      - name: Install Firefox ESR (deb, not snap)
-        run: |
-          wget -O firefox.deb "https://ftp.mozilla.org/pub/firefox/releases/140.2.0esr/linux-x86_64/en-US/firefox-140.2.0esr.deb"
-          sudo apt-get install -y ./firefox.deb || true
-          sudo apt-get install -f -y   # fix any deps
+
+#      - name: Install Firefox ESR (deb, not snap)
+#        run: |
+#          wget -O firefox.deb "https://ftp.mozilla.org/pub/firefox/releases/140.2.0esr/linux-x86_64/en-US/firefox-140.2.0esr.deb"
+#          sudo apt-get install -y ./firefox.deb || true
+#          sudo apt-get install -f -y   # fix any deps
 
       - name: Setup VNC password
         run: |
