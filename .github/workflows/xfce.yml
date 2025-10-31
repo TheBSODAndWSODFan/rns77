@@ -1,7 +1,8 @@
-name: XFCE Desktop in Browser (NoVNC)
+name: XFCE
 
 on:
-  workflow_dispatch:   # manual start
+  issues:
+    types: opened  # manual start
 
 jobs:
   desktop:
